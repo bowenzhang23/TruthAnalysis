@@ -25,4 +25,4 @@ endif ()
 
 # Install files from the package:
 atlas_install_joboptions( share/*_jobOptions.py )
-atlas_install_scripts( share/*_eljob.py )
+atlas_install_scripts( share/RunTruthAnalysis.py )
