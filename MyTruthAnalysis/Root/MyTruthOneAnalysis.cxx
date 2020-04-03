@@ -52,12 +52,16 @@ StatusCode MyTruthOneAnalysis :: initialize ()
   ANA_MSG_INFO ("Initializing ...");
   
   // book histograms
-  ANA_CHECK (book (TH1F ("h_run_number", "Run Number", 100, 0, 10'000)));
-  ANA_CHECK (book (TH1F ("h_event_number", "Event Number", 100, 0, 1'000'000)));
-  ANA_CHECK (book (TH1F ("h_mc_weights", "MC weights", 100, -2, 2)));
-  ANA_CHECK (book (TH1F ("h_dRtautau", "#DeltaR(#tau-lepton, #tau-lepton)", 100, 0, 10)));
-  ANA_CHECK (book (TH1F ("h_dRbb", "#DeltaR(b-quark, b-quark)", 100, 0, 10)));
-  ANA_CHECK (book (TH1F ("h_dRbjetbjet", "#DeltaR(b-jet, b-jet)", 100, 0, 10)));
+  ANA_CHECK (book(TH1F("h_run_number", "Run Number", 100, 0, 100'000)));
+  ANA_CHECK (book(TH1F("h_event_number", "Event Number", 100, 0, 100'000'000)));
+  ANA_CHECK (book(TH1F("h_mc_weights", "MC weights", 100, -2, 2)));
+  ANA_CHECK (book(TH1F("h_dRtautau", "#DeltaR(#tau-lepton, #tau-lepton)", 100, 0, 10)));
+  ANA_CHECK (book(TH1F("h_dRtauvistauvis", "#DeltaR(#tau_{h}, #tau_{h})", 100, 0, 10)));
+  ANA_CHECK (book(TH1F("h_dRbb", "#DeltaR(b-quark, b-quark)", 100, 0, 10)));
+  ANA_CHECK (book(TH1F("h_dRbbCut", "#DeltaR(b-quark, b-quark)", 100, 0, 10)));
+  ANA_CHECK (book(TH1F("h_dRbjetbjet", "#DeltaR(b-jet, b-jet)", 100, 0, 10)));
+  ANA_CHECK (book(TH1F("h_mHtautau", "tau^{+}_{h}#tau^{-}_{h} invariant mass", 150, 0, 150)));
+  ANA_CHECK (book(TH1F("h_mHbb", "b#bar{b} invariant mass", 150, 0, 150)));
 
   return StatusCode::SUCCESS;
 }
@@ -174,7 +178,7 @@ StatusCode MyTruthOneAnalysis :: execute ()
     } 
   }
   /* 
-   * TODO: nbjet requirement is vetoing a lot of events
+   * TODO: nbjet requirement is vetoing a lot of events with dR(b, b) < 0.4
    * this is expected(?) because two bjets are close to each other(?)
    */
   // int nBJets = btag_idx.size();
@@ -182,8 +186,10 @@ StatusCode MyTruthOneAnalysis :: execute ()
   // particles
   const xAOD::TruthParticle* tau0 = getFinal(higgsMap["Htautau"]->child(0));
   const xAOD::TruthParticle* tau1 = getFinal(higgsMap["Htautau"]->child(1));
-  const xAOD::TruthParticle* b0   = getFinal(higgsMap["Hbb"]->child(0));
-  const xAOD::TruthParticle* b1   = getFinal(higgsMap["Hbb"]->child(1));
+  // const xAOD::TruthParticle* b0   = getFinal(higgsMap["Hbb"]->child(0));
+  // const xAOD::TruthParticle* b1   = getFinal(higgsMap["Hbb"]->child(1));
+  const xAOD::TruthParticle* b0 = higgsMap["Hbb"]->child(0);
+  const xAOD::TruthParticle* b1 = higgsMap["Hbb"]->child(1);
 
   // if less than two truth b-tag jet, push the leading jet of the remaining jets to the vec
   if (truthJetVec.size() < 2) {
@@ -207,10 +213,6 @@ StatusCode MyTruthOneAnalysis :: execute ()
 
   ANA_MSG_DEBUG ("Htautau : " << higgsMap["Htautau"]->child(0)->pdgId() << ", " << higgsMap["Htautau"]->child(1)->pdgId());
   ANA_MSG_DEBUG ("Hbb     : " << higgsMap["Hbb"]->child(0)->pdgId() << ", " << higgsMap["Hbb"]->child(1)->pdgId());
-
-  // deltaRs
-  float deltaRtautau = tau0_p4.DeltaR(tau1_p4);
-  float deltaRbb = b0_p4.DeltaR(b1_p4);
 
   if (!isGoodEvent()) {
     return StatusCode::SUCCESS;
@@ -250,8 +252,21 @@ StatusCode MyTruthOneAnalysis :: execute ()
   }
   _bkp->addCut(8, "DiTauMass", mc_weights);
 
-  hist("h_dRtautau")->Fill(deltaRtautau);
-  hist("h_dRbb")->Fill(deltaRbb);
+  // deltaRs
+  float deltaRtautau = tau0_p4.DeltaR(tau1_p4);
+  float deltaRtauvistauvis = tauvis0_p4.DeltaR(tauvis1_p4);
+  float deltaRbb = b0_p4.DeltaR(b1_p4);
+
+  // invariant masses
+  float mHtautau = (tauvis0_p4 + tauvis1_p4).M() / GeV;
+  float mHbb = (b0_p4 + b1_p4).M() / GeV;
+
+  // fill histograms
+  hist("h_dRtautau")->Fill(deltaRtautau, mc_weights);
+  hist("h_dRtauvistauvis")->Fill(deltaRtauvistauvis, mc_weights);
+  hist("h_dRbb")->Fill(deltaRbb, mc_weights);
+  hist("h_mHtautau")->Fill(mHtautau, mc_weights);
+  hist("h_mHbb")->Fill(mHbb, mc_weights);
 
   if (truthJetVec.size() >= 2) {
     const xAOD::Jet* bjet0 = truthJetVec[0];
@@ -261,7 +276,11 @@ StatusCode MyTruthOneAnalysis :: execute ()
     bjet0_p4 = bjet0->p4();
     bjet1_p4 = bjet1->p4();
     float deltaRbjetbjet = bjet0_p4.DeltaR(bjet1_p4);
-    hist("h_dRbjetbjet")->Fill(deltaRbjetbjet);
+    hist("h_dRbjetbjet")->Fill(deltaRbjetbjet, mc_weights);
+  }
+
+  if (deltaRbb < 0.8) {
+    hist("h_dRbbCut")->Fill(deltaRbb, mc_weights);
   }
 
   ANA_MSG_DEBUG ("Found Higgs -> tautau, delta R(tau, tau) : " << deltaRtautau);

@@ -25,10 +25,6 @@ class MyTruthOneAnalysis : public EL::AnaAlgorithm
  private:
   void _printVec(const std::vector<int>& v, const std::string& message) const;
   std::unique_ptr<Bookkeeper> _bkp;
-  // Configuration, and any other types of variables go here.
-  //float m_cutValue;
-  //TTree *m_myTree;
-  //TH1 *m_myHist;
 };
 
 #endif

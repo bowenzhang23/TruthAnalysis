@@ -4,5 +4,6 @@
        should be created. -->
 
   <class name="MyTruthOneAnalysis" />
+  <class name="Bookkeeper" />
    
 </lcgdict>
