@@ -5,6 +5,9 @@
 #include <xAODTruth/TruthParticle.h>
 #include <xAODJet/JetContainer.h>
 #include <xAODJet/Jet.h>
+#include <exception>
+
+class TauIsNotFinalOrDecayNoNeutrino : std::exception {};
 
 constexpr float GeV = 1'000;
 
@@ -26,6 +29,8 @@ const xAOD::TruthParticle* getFinal(const xAOD::TruthParticle* particle);
 
 void getFinalHelper(const xAOD::TruthParticle* particle, xAOD::TruthParticle*& final);
 
+TLorentzVector tauVisP4(const xAOD::TruthParticle* tau);
+
 bool isGoodEvent();  // TODO
 
 bool isOS(const xAOD::TruthParticle* p0, const xAOD::TruthParticle* p1);
@@ -33,5 +38,7 @@ bool isOS(const xAOD::TruthParticle* p0, const xAOD::TruthParticle* p1);
 bool isGoodTau(const xAOD::TruthParticle* tau, double ptCut, double etaCut);
 
 bool isGoodB(const xAOD::TruthParticle* b, double ptCut, double etaCut);
+
+bool isNotOverlap(const xAOD::TruthParticle* b0, const xAOD::TruthParticle* b1, const xAOD::TruthParticle* tau0, const xAOD::TruthParticle* tau1, double minDR);
 
 #endif

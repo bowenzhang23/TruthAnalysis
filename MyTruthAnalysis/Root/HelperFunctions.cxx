@@ -76,6 +76,19 @@ void getFinalHelper(const xAOD::TruthParticle* particle, xAOD::TruthParticle*& f
     }
 }
 
+TLorentzVector tauVisP4(const xAOD::TruthParticle* tau) {
+    TLorentzVector tau_vis{};
+    std::vector<unsigned int> idx{};
+    
+    if (hasChild(tau, 16, idx)) {  // 16 ->vt
+        tau_vis = tau->p4() - tau->child(idx[0])->p4();
+    } else {
+        throw TauIsNotFinalOrDecayNoNeutrino();
+    }
+
+    return tau_vis;
+}
+
 bool isGoodEvent() {
     return true;
 }
@@ -86,12 +99,7 @@ bool isOS(const xAOD::TruthParticle* p0, const xAOD::TruthParticle* p1){
 
 bool isGoodTau(const xAOD::TruthParticle* tau, double ptCut, double etaCut) {
     if (!isTauTruth(tau)) return false;
-    TLorentzVector tau_vis{};
-    std::vector<unsigned int> idx{};
-    
-    if (hasChild(tau, 16, idx)) {  // 16 ->vt
-        tau_vis = tau->p4() - tau->child(idx[0])->p4();
-    }
+    TLorentzVector tau_vis = tauVisP4(tau);
     if (tau_vis.Pt() < ptCut * GeV) return false;
     double eta = tau_vis.Eta();
     if (std::abs(eta) > etaCut) return false;
@@ -102,9 +110,19 @@ bool isGoodTau(const xAOD::TruthParticle* tau, double ptCut, double etaCut) {
 
 bool isGoodB(const xAOD::TruthParticle* b, double ptCut, double etaCut) {
     if (!isBTruth(b)) return false;
+    // if (nBJets != 2) return false; 
     if (b->pt() < ptCut * GeV) return false;
     double eta = b->eta();
     if (std::abs(eta) > etaCut) return false;
 
+    return true;
+}
+
+bool isNotOverlap(const xAOD::TruthParticle* b0, const xAOD::TruthParticle* b1, const xAOD::TruthParticle* tau0, const xAOD::TruthParticle* tau1, double minDR) {
+    if (b0->p4().DeltaR(tau0->p4()) < minDR) return false;
+    if (b1->p4().DeltaR(tau0->p4()) < minDR) return false;
+    if (b0->p4().DeltaR(tau1->p4()) < minDR) return false;
+    if (b1->p4().DeltaR(tau1->p4()) < minDR) return false;
+    
     return true;
 }

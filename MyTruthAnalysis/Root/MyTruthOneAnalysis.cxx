@@ -50,7 +50,7 @@ StatusCode MyTruthOneAnalysis :: initialize ()
   // trees.  This method gets called before any input files are
   // connected.
   ANA_MSG_INFO ("Initializing ...");
-
+  
   // book histograms
   ANA_CHECK (book (TH1F ("h_run_number", "Run Number", 100, 0, 10'000)));
   ANA_CHECK (book (TH1F ("h_event_number", "Event Number", 100, 0, 1'000'000)));
@@ -173,22 +173,11 @@ StatusCode MyTruthOneAnalysis :: execute ()
       btag_idx.push_back(i);
     } 
   }
-  // if less than two truth b-tag jet, push the leading jet of the remaining jets to the vec
-  if (truthJetVec.size() < 2) {
-    for (std::size_t i = 0; i < jets->size(); i++) {
-      if (!contains(btag_idx, i)) {
-        truthJetVec.push_back(jets->at(i));
-        btag_idx.push_back(i);
-      }
-      if (truthJetVec.size() == 2) break;
-    }
-  }
-  if (truthJetVec.size() < 2) {
-    ANA_MSG_WARNING("Jet size < 2!!!");
-  }
-  _printVec(btag_idx, "btag_idx");
-  ANA_MSG_DEBUG ("Jet vector size: " << truthJetVec.size());
-  assert(truthJetVec.size() == 2);
+  /* 
+   * TODO: nbjet requirement is vetoing a lot of events
+   * this is expected(?) because two bjets are close to each other(?)
+   */
+  // int nBJets = btag_idx.size();
 
   // particles
   const xAOD::TruthParticle* tau0 = getFinal(higgsMap["Htautau"]->child(0));
@@ -196,21 +185,32 @@ StatusCode MyTruthOneAnalysis :: execute ()
   const xAOD::TruthParticle* b0   = getFinal(higgsMap["Hbb"]->child(0));
   const xAOD::TruthParticle* b1   = getFinal(higgsMap["Hbb"]->child(1));
 
+  // if less than two truth b-tag jet, push the leading jet of the remaining jets to the vec
+  if (truthJetVec.size() < 2) {
+    for (std::size_t i = 0; i < jets->size(); i++) {
+      if (!contains(btag_idx, i) && (jets->at(i)->p4().DeltaR(tau0->p4()))>0.2 && (jets->at(i)->p4().DeltaR(tau1->p4()))>0.2) {
+        truthJetVec.push_back(jets->at(i));
+      }
+      if (truthJetVec.size() == 2) break;
+    }
+  }
+  // if (truthJetVec.size() < 2) {
+  //   ANA_MSG_WARNING("Jet size < 2!!!");
+  // }
+  _printVec(btag_idx, "btag_idx");
+  ANA_MSG_DEBUG ("Jet vector size: " << truthJetVec.size());
+
   // kinematics
   TLorentzVector tau0_p4 = tau0->p4(), tau1_p4 = tau1->p4();
-  TLorentzVector b0_p4   = b0->p4(),   b1_p4   = b1->p4();
+  TLorentzVector tauvis0_p4 = tauVisP4(tau0), tauvis1_p4 = tauVisP4(tau1);
+  TLorentzVector b0_p4 = b0->p4(), b1_p4 = b1->p4();
 
   ANA_MSG_DEBUG ("Htautau : " << higgsMap["Htautau"]->child(0)->pdgId() << ", " << higgsMap["Htautau"]->child(1)->pdgId());
   ANA_MSG_DEBUG ("Hbb     : " << higgsMap["Hbb"]->child(0)->pdgId() << ", " << higgsMap["Hbb"]->child(1)->pdgId());
 
-  TLorentzVector bjet0_p4, bjet1_p4;
-  bjet0_p4 = truthJetVec[0]->p4();
-  bjet1_p4 = truthJetVec[1]->p4();
-
   // deltaRs
   float deltaRtautau = tau0_p4.DeltaR(tau1_p4);
   float deltaRbb = b0_p4.DeltaR(b1_p4);
-  float deltaRbjetbjet = bjet0_p4.DeltaR(bjet1_p4);
 
   if (!isGoodEvent()) {
     return StatusCode::SUCCESS;
@@ -232,22 +232,37 @@ StatusCode MyTruthOneAnalysis :: execute ()
   }
   _bkp->addCut(5, "BJetPreSel", mc_weights);
 
+  if (!isNotOverlap(b0, b1, tau0, tau1, 0.2)) {  // dR>0.2
+    return StatusCode::SUCCESS;
+  }
+  _bkp->addCut(6, "OverlapRM", mc_weights);
+
   bool STT = isGoodTau(tau0, 100., 2.5) && isGoodB(b0, 45., 2.4);
   bool DTT = isGoodTau(tau0, 40., 2.5) && isGoodTau(tau1, 30., 2.5) && isGoodB(b0, 80., 2.4);
 
-  if (!STT && !DTT) {
+  if (!STT && !DTT) {  // mimic different trigger channels 
     return StatusCode::SUCCESS;
   }
-  _bkp->addCut(6, "TriggerPt", mc_weights);
+  _bkp->addCut(7, "TriggerPt", mc_weights);
 
-  if ((tau0_p4+tau1_p4).M() < 60 * GeV) {
+  if ((tau0_p4+tau1_p4).M() < 60 * GeV) {  // use tau lepton to mimic MMC ...
     return StatusCode::SUCCESS;
   }
-  _bkp->addCut(7, "MisMassCal", mc_weights);
+  _bkp->addCut(8, "DiTauMass", mc_weights);
 
   hist("h_dRtautau")->Fill(deltaRtautau);
   hist("h_dRbb")->Fill(deltaRbb);
-  hist("h_dRbjetbjet")->Fill(deltaRbjetbjet);
+
+  if (truthJetVec.size() >= 2) {
+    const xAOD::Jet* bjet0 = truthJetVec[0];
+    const xAOD::Jet* bjet1 = truthJetVec[1];
+
+    TLorentzVector bjet0_p4, bjet1_p4;
+    bjet0_p4 = bjet0->p4();
+    bjet1_p4 = bjet1->p4();
+    float deltaRbjetbjet = bjet0_p4.DeltaR(bjet1_p4);
+    hist("h_dRbjetbjet")->Fill(deltaRbjetbjet);
+  }
 
   ANA_MSG_DEBUG ("Found Higgs -> tautau, delta R(tau, tau) : " << deltaRtautau);
   ANA_MSG_DEBUG ("Found Higgs -> bb,     delta R(b, b)     : " << deltaRbb);
@@ -278,11 +293,11 @@ StatusCode MyTruthOneAnalysis :: finalize ()
 
 void MyTruthOneAnalysis :: _printVec (const std::vector<int>& v, const std::string& message) const 
 {
-    std::string s = "{ ";
-    for (int element: v) {
-        s += std::to_string(element);
-        s += " ";
-    }
-    s += "}";
-    ANA_MSG_DEBUG ("print vector -> " << message << " " << s);
+  std::string s = "{ ";
+  for (int element: v) {
+      s += std::to_string(element);
+      s += " ";
+  }
+  s += "}";
+  ANA_MSG_DEBUG ("print vector -> " << message << " " << s);
 }
