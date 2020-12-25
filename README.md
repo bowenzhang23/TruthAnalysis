@@ -13,8 +13,7 @@ lsetup git
 mkdir -p build run
 git clone git@github.com:peppapiggyme/TruthAnalysis.git source
 pushd build
-asetup AnalysisBase,21.2.104,here
-\cp CMakeLists.txt ../source/
+asetup AnalysisBase,21.2.104
 cmake ../source
 make
 source x86*/setup.sh
