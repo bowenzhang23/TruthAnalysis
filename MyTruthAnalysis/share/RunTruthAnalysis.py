@@ -24,13 +24,15 @@ sh.printContent()
 
 # Create an EventLoop job.
 job = ROOT.EL.Job()
+job.outputAdd ( ROOT.EL.OutputStream ('TruthAna') )
 job.sampleHandler( sh )
-# job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
+job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 job.options().setString( ROOT.EL.Job.optSubmitDirMode, 'unique-link')
 
 # Create the algorithm's configuration.
 from AnaAlgorithm.DualUseConfig import createAlgorithm
-alg = createAlgorithm ( 'MyTruthOneAnalysis', 'AnalysisAlg' )
+alg = createAlgorithm ( 'TruthAnaHHbbtautau', 'AnalysisAlg' )
+alg.OutputLevel = ROOT.MSG.INFO
 
 # later on we'll add some configuration options for our algorithm that go here
 

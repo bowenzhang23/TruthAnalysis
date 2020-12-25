@@ -7,38 +7,46 @@
 #include <xAODJet/Jet.h>
 #include <exception>
 
-class TauIsNotFinalOrDecayNoNeutrino : std::exception {};
+namespace TruthAna
+{
 
-constexpr float GeV = 1'000;
+    class TauIsNotFinalOrDecayNoNeutrino : public std::exception
+    {
+    };
 
-bool hasChild(const xAOD::TruthParticle* parent, const int absPdgId);
+    constexpr float GeV = 1'000;
 
-bool hasChild(const xAOD::TruthParticle* parent, const int absPdgId, std::vector<unsigned int>& indices);
+    bool hasChild(const xAOD::TruthParticle *parent, const int absPdgId);
 
-bool isFromHiggs(const xAOD::TruthParticle* particle);
+    bool hasChild(const xAOD::TruthParticle *parent, const int absPdgId, std::vector<unsigned int> &indices);
 
-bool isBJet(const xAOD::Jet* jet);
+    bool isFromHiggs(const xAOD::TruthParticle *particle);
 
-bool isBTruth(const xAOD::TruthParticle* jet);
+    bool isBJet(const xAOD::Jet *jet);
 
-bool isTauTruth(const xAOD::TruthParticle* tau);
+    bool isBTruth(const xAOD::TruthParticle *jet);
 
-bool contains(const std::vector<int>& v, const std::size_t& element);
+    bool isTauTruth(const xAOD::TruthParticle *tau);
 
-const xAOD::TruthParticle* getFinal(const xAOD::TruthParticle* particle);
+    bool contains(const std::vector<int> &v, const std::size_t &element);
 
-void getFinalHelper(const xAOD::TruthParticle* particle, xAOD::TruthParticle*& final);
+    std::string printVec(const std::vector<int> &v, const std::string &message);
 
-TLorentzVector tauVisP4(const xAOD::TruthParticle* tau);
+    const xAOD::TruthParticle *getFinal(const xAOD::TruthParticle *particle);
 
-bool isGoodEvent();  // TODO
+    void getFinalHelper(const xAOD::TruthParticle *particle, xAOD::TruthParticle *&final);
 
-bool isOS(const xAOD::TruthParticle* p0, const xAOD::TruthParticle* p1);
+    TLorentzVector tauVisP4(const xAOD::TruthParticle *tau);
 
-bool isGoodTau(const xAOD::TruthParticle* tau, double ptCut, double etaCut);
+    bool isGoodEvent(); // TODO
 
-bool isGoodB(const xAOD::TruthParticle* b, double ptCut, double etaCut);
+    bool isOS(const xAOD::TruthParticle *p0, const xAOD::TruthParticle *p1);
 
-bool isNotOverlap(const xAOD::TruthParticle* b0, const xAOD::TruthParticle* b1, const xAOD::TruthParticle* tau0, const xAOD::TruthParticle* tau1, double minDR);
+    bool isGoodTau(const xAOD::TruthParticle *tau, double ptCut, double etaCut);
 
+    bool isGoodB(const xAOD::TruthParticle *b, double ptCut, double etaCut);
+
+    bool isNotOverlap(const xAOD::TruthParticle *b0, const xAOD::TruthParticle *b1, const xAOD::TruthParticle *tau0, const xAOD::TruthParticle *tau1, double minDR);
+
+} // namespace TruthAna
 #endif

@@ -1,5 +1,5 @@
 #
-# Project configuration for UserAnalysis.
+# Project configuration for MyTruthAnalysis.
 #
 
 # Set the minimum required CMake version:
@@ -37,7 +37,7 @@ atlas_ctest_setup()
 # Set up the GitAnalysisTutorial project. With this CMake will look for "packages"
 # in the current repository and all of its submodules, respecting the
 # "package_filters.txt" file, and set up the build of those packages.
-atlas_project( UserAnalysis 1.0.0
+atlas_project( MyTruthAnalysis 0.0.1
    USE ${ATLAS_PROJECT} ${${ATLAS_PROJECT}_VERSION} )
 
 # Set up the runtime environment setup script. This makes sure that the

@@ -3,7 +3,7 @@
   <!-- This file contains a list of all classes for which a dictionary
        should be created. -->
 
-  <class name="MyTruthOneAnalysis" />
-  <class name="Bookkeeper" />
+  <class name="TruthAnaHHbbtautau" />
+  <class name="Cutflow" />
    
 </lcgdict>
