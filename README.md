@@ -1,8 +1,10 @@
 # Set up
 
 (1) make a workspace
+```
 mkdir new_folder
 cd $_
+```
 
 (2) create a script to set up
 in `setup.sh`:
@@ -35,3 +37,4 @@ sooner or later move to new signal samples
 ```
 mc16_13TeV.600023.PhH7EG_PDF4LHC15_HHbbtautauHadHad_cHHH01d0.merge.EVNT.e7954_e7400
 ```
+see issues
