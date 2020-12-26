@@ -32,9 +32,8 @@ setupATLAS -q && pushd build && asetup && source x86*/setup.sh && popd
 RunTruthAnalysis.py <options>
 ```
 
+# Info
+What/Why truth level analysis and how to do it in ATLAS software: [slides](https://indico.cern.ch/event/472469/contributions/1982685/attachments/1222751/1789718/truth_tutorial.pdf)
+
 # To do
-sooner or later move to new signal samples
-```
-mc16_13TeV.600023.PhH7EG_PDF4LHC15_HHbbtautauHadHad_cHHH01d0.merge.EVNT.e7954_e7400
-```
 see issues
