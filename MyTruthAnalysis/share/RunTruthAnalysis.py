@@ -44,6 +44,7 @@ job.options().setString( ROOT.EL.Job.optSubmitDirMode, 'unique-link')
 from AnaAlgorithm.DualUseConfig import createAlgorithm
 alg = createAlgorithm ( 'TruthAnaHHbbtautau', 'AnalysisAlg' )
 alg.OutputLevel = ROOT.MSG.INFO
+alg.RootStreamName = 'TruthAna'
 
 # Add our algorithm to the job
 job.algsAdd( alg )

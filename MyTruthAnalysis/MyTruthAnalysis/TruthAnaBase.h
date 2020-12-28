@@ -35,3 +35,10 @@ private:
     return StatusCode::SUCCESS;  \
   }                              \
   m_cCutflow->addCut(name, m_fMCWeight);
+
+#define APPLYCOUNT(criteria, name) \
+  if ((criteria))                 \
+  {                              \
+    m_cCutflow->addCut(name, m_fMCWeight);  \
+  }
+  

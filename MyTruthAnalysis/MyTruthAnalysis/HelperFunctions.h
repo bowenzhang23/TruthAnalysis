@@ -22,9 +22,13 @@ namespace TruthAna
 
     bool isFromHiggs(const xAOD::TruthParticle *particle);
 
+    /// this uses TruthFlavour
     bool isBJet(const xAOD::Jet *jet);
 
-    bool isBTruth(const xAOD::TruthParticle *jet);
+    /// truth flavour is not available, this use dR matching to truth b partons
+    bool isDiBJet(const xAOD::Jet *fatjet, const xAOD::TruthParticle* b0, const xAOD::TruthParticle* b1);
+
+    bool isBTruth(const xAOD::TruthParticle *parton);
 
     bool isTauTruth(const xAOD::TruthParticle *tau);
 

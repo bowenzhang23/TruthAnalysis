@@ -1,6 +1,10 @@
 // My Class
 #include "MyTruthAnalysis/HelperFunctions.h"
 
+// xAOD
+#include <xAODJet/JetContainer.h>
+#include <xAODJet/Jet.h>
+
 // ROOT
 #include "TLorentzVector.h"
 
@@ -27,7 +31,7 @@ namespace TruthAna
         return false;
     }
 
-    bool hasChild(const xAOD::TruthParticle *parent, const int absPdgId, std::vector<unsigned int> &indices)
+    bool hasChild(const xAOD::TruthParticle *parent, const int absPdgId, std::vector<unsigned> &indices)
     {
         bool found = false;
         const std::size_t nChildren = parent->nChildren();
@@ -45,7 +49,7 @@ namespace TruthAna
 
     bool isFromHiggs(const xAOD::TruthParticle *particle)
     {
-        return (particle->auxdata<unsigned int>("classifierParticleOrigin") == 14);
+        return (particle->auxdata<unsigned>("classifierParticleOrigin") == 14);
     }
 
     bool isBJet(const xAOD::Jet *jet)
@@ -53,9 +57,17 @@ namespace TruthAna
         return (jet->auxdata<int>("TrueFlavor") == 5);
     }
 
-    bool isBTruth(const xAOD::TruthParticle *jet)
+    bool isDiBJet(const xAOD::Jet *fatjet, const xAOD::TruthParticle* b0, const xAOD::TruthParticle* b1)
     {
-        return (jet->absPdgId() == 5);
+        bool match_0 = fatjet->p4().DeltaR(b0->p4()) < 1.0;
+        bool match_1 = fatjet->p4().DeltaR(b1->p4()) < 1.0;
+
+        return match_0 && match_1;
+    }
+
+    bool isBTruth(const xAOD::TruthParticle *parton)
+    {
+        return (parton->absPdgId() == 5);
     }
 
     bool isTauTruth(const xAOD::TruthParticle *tau)
@@ -89,7 +101,7 @@ namespace TruthAna
 
     void getFinalHelper(const xAOD::TruthParticle *particle, xAOD::TruthParticle *&final)
     {
-        std::vector<unsigned int> idx{};
+        std::vector<unsigned> idx{};
         if (hasChild(particle, particle->absPdgId(), idx))
         {
             getFinalHelper(particle->child(idx[0]), final);
@@ -103,7 +115,7 @@ namespace TruthAna
     TLorentzVector tauVisP4(const xAOD::TruthParticle *tau)
     {
         TLorentzVector tau_vis{};
-        std::vector<unsigned int> idx{};
+        std::vector<unsigned> idx{};
 
         if (hasChild(tau, 16, idx))
         { // 16 ->vt
@@ -119,6 +131,7 @@ namespace TruthAna
 
     bool isGoodEvent()
     {
+        // no cut
         return true;
     }
 
