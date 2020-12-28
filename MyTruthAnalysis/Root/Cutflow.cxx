@@ -39,7 +39,7 @@ void Cutflow::print() const
         cout << "(" << std::left << setw(2) << i + 1  << ") "
              << std::left << setw(nLongestP2) << m_vCutflow[i].first 
              << std::left << setw(10) << m_vCutflow[i].second;
-        if (i > 0)
+        if (i > 0 && m_vCutflow[i].first.find("Count") == std::string::npos)
             cout << m_vCutflow[i].second / m_vCutflow[i - 1].second << '\n';
         else
             cout << '\n';

@@ -39,6 +39,6 @@ private:
 #define APPLYCOUNT(criteria, name) \
   if ((criteria))                 \
   {                              \
-    m_cCutflow->addCut(name, m_fMCWeight);  \
+    m_cCutflow->addCut(std::string("[Count] ") + name, m_fMCWeight);  \
   }
   

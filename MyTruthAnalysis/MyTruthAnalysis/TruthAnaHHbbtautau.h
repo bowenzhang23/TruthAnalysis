@@ -13,7 +13,7 @@
 
 class TTree;
 
-enum class CHAN { UNKNOWN=0, RESOLVED, BOOSTED, BOTH }; //!
+enum class CHAN { UNKNOWN=0, RESOLVED, BOOSTED }; //!
 
 class TruthAnaHHbbtautau : public TruthAnaBase
 {

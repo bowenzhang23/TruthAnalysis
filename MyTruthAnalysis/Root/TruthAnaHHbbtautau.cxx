@@ -138,6 +138,8 @@ StatusCode TruthAnaHHbbtautau::execute()
       found_hbb = true;
       higgsMap.insert({"Hbb", particle});
     }
+
+    if (found_hbb && found_htautau) break;
   }
 
   // fetch truth taus
@@ -185,9 +187,7 @@ StatusCode TruthAnaHHbbtautau::execute()
   }
 
   // Categories
-  if (truthFatJetVec.size() >= 1 && truthJetVec.size() >= 2)
-    m_eChannel = CHAN::BOTH;
-  else if (truthFatJetVec.size() >= 1)
+  if (truthFatJetVec.size() >= 1)
     m_eChannel = CHAN::BOOSTED;
   else if (truthJetVec.size() >= 2)
     m_eChannel = CHAN::RESOLVED;
@@ -294,12 +294,12 @@ StatusCode TruthAnaHHbbtautau::execute()
   m_nJets = truthJetVec.size();
   m_nFatJets = truthFatJetVec.size();
 
-  APPLYCOUNT(m_eChannel == CHAN::UNKNOWN, "Channel = Unknown")
-  APPLYCOUNT(m_eChannel == CHAN::RESOLVED, "Channel = Resolved");
-  APPLYCOUNT(m_eChannel == CHAN::BOOSTED, "Channel = Boosted");
-  APPLYCOUNT(m_eChannel == CHAN::BOTH, "Channel = Both");
+  APPLYCOUNT(true, "All");
+  APPLYCOUNT(m_eChannel == CHAN::UNKNOWN, "Unknown")
+  APPLYCOUNT(m_eChannel == CHAN::RESOLVED, "Resolved");
+  APPLYCOUNT(m_eChannel == CHAN::BOOSTED, "Boosted");
 
-  if (m_nJets >= 2) // only make sense for Resolved and Both channel
+  if (m_nJets >= 2) // only make sense for Resolved channel
   {
     std::sort(truthJetVec.begin(), truthJetVec.end(), 
       [](const xAOD::Jet *a, const xAOD::Jet *b) { return a->pt() > b->pt(); });
@@ -319,7 +319,7 @@ StatusCode TruthAnaHHbbtautau::execute()
     m_fMBjetBjet = (bjet0_p4 + bjet1_p4).M() / GeV;
   }
 
-  if (m_nFatJets >= 1) // only make sense for Boosted and Both channel
+  if (m_nFatJets >= 1) // only make sense for Boosted channel
   {
     std::sort(truthFatJetVec.begin(), truthFatJetVec.end(), 
       [](const xAOD::Jet *a, const xAOD::Jet *b) { return a->pt() > b->pt(); });
