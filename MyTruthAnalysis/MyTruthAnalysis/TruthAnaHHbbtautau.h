@@ -78,6 +78,10 @@ private:
   double m_fDeltaR_BjetBjet;         //!
   double m_fDeltaR_TauTau;           //!
   double m_fDeltaR_TauVisTauVis;     //!
+  double m_fDeltaR_BB_TauTau;        //!
+
+  double m_fDeltaR_BjetBjet_TauVisTauVis; //!
+  double m_fDeltaR_DiBjet_TauVisTauVis;   //!
 
   double m_fMBB;                     //!
   double m_fMTauTau;                 //!

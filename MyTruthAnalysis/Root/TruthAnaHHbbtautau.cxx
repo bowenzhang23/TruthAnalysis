@@ -278,6 +278,7 @@ StatusCode TruthAnaHHbbtautau::execute()
   m_fDeltaR_TauTau = tau0_p4.DeltaR(tau1_p4);
   m_fDeltaR_TauVisTauVis = tauvis0_p4.DeltaR(tauvis1_p4);
   m_fDeltaR_BB = b0_p4.DeltaR(b1_p4);
+  m_fDeltaR_BB_TauTau = (b0_p4 + b1_p4).DeltaR(tau0_p4 + tau1_p4);
 
   // Higgs Pt
   m_fPtBB = (b0_p4 + b1_p4).Pt() / GeV;
@@ -316,6 +317,7 @@ StatusCode TruthAnaHHbbtautau::execute()
     m_fBjet1_phi = bjet1_p4.Phi();
     m_fBjet1_eta = bjet1_p4.Eta();
     m_fDeltaR_BjetBjet = bjet0_p4.DeltaR(bjet1_p4);
+    m_fDeltaR_BjetBjet_TauVisTauVis = (bjet0_p4 + bjet1_p4).DeltaR(tauvis0_p4 + tauvis1_p4);
     m_fMBjetBjet = (bjet0_p4 + bjet1_p4).M() / GeV;
   }
 
@@ -331,6 +333,7 @@ StatusCode TruthAnaHHbbtautau::execute()
     m_fDiBjet_m = dibjet_p4.M() / GeV;
     m_fDiBjet_phi = dibjet_p4.Phi();
     m_fDiBjet_eta = dibjet_p4.Eta();
+    m_fDeltaR_DiBjet_TauVisTauVis = dibjet_p4.DeltaR(tauvis0_p4 + tauvis1_p4);
   }
 
   ANA_MSG_DEBUG("Found Higgs -> tautau, delta R(tau, tau) : " << m_fDeltaR_TauTau);
@@ -390,6 +393,9 @@ void TruthAnaHHbbtautau::initBranches()
   m_cTree->Branch("DeltaR_BjetBjet", &m_fDeltaR_BjetBjet);
   m_cTree->Branch("DeltaR_TauTau", &m_fDeltaR_TauTau);
   m_cTree->Branch("DeltaR_TauVisTauVis", &m_fDeltaR_TauVisTauVis);
+  m_cTree->Branch("DeltaR_BB_TauTau", &m_fDeltaR_BB_TauTau);
+  m_cTree->Branch("DeltaR_BjetBjet_TauVisTauVis", &m_fDeltaR_BjetBjet_TauVisTauVis);
+  m_cTree->Branch("DeltaR_DiBjet_TauVisTauVis", &m_fDeltaR_DiBjet_TauVisTauVis);
   m_cTree->Branch("MBB", &m_fMBB);
   m_cTree->Branch("MTauTau", &m_fMTauTau);
   m_cTree->Branch("MBjetBjet", &m_fMBjetBjet);
@@ -439,6 +445,9 @@ void TruthAnaHHbbtautau::resetBranches()
   m_fDeltaR_BjetBjet = 0; // DONE
   m_fDeltaR_TauTau = 0; // DONE
   m_fDeltaR_TauVisTauVis = 0; // DONE
+  m_fDeltaR_BB_TauTau = 0; // DONE
+  m_fDeltaR_BjetBjet_TauVisTauVis = 0; // DONE
+  m_fDeltaR_DiBjet_TauVisTauVis = 0; // DONE
   m_fMBB = 0; // DONE
   m_fMTauTau = 0; // DONE
   m_fMBjetBjet = 0; // DONE
